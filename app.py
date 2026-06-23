@@ -24,7 +24,8 @@ def send_email(name, phone, message):
     msg['To'] = GMAIL_USER
 
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as server:
+            server.starttls()
             server.login(GMAIL_USER, GMAIL_PASSWORD)
             server.send_message(msg)
         print(f"이메일 전송 완료: {name}")
