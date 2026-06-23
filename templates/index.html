@@ -191,24 +191,24 @@
             msgEl.style.color = '#c9a84c';
 
             try {
-                const res = await fetch('/contact', {
+                const res = await fetch('https://formspree.io/f/mzdlbnqb', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, phone, message })
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 성함: name, 연락처: phone, 문의내용: message })
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    msgEl.textContent = data.message;
+                    msgEl.textContent = '문의가 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.';
                     msgEl.style.color = '#7dff9a';
                     document.getElementById('nameInput').value = '';
                     document.getElementById('phoneInput').value = '';
                     document.getElementById('messageInput').value = '';
                 } else {
-                    msgEl.textContent = '오류: ' + (data.error || '서버 오류가 발생했습니다.');
+                    msgEl.textContent = '오류가 발생했습니다. 다시 시도해주세요.';
                     msgEl.style.color = '#ff6b6b';
                 }
             } catch (e) {
-                msgEl.textContent = '전송 실패: 서버에 연결할 수 없습니다.';
+                msgEl.textContent = '전송 실패: 네트워크를 확인해주세요.';
                 msgEl.style.color = '#ff6b6b';
             }
         }
