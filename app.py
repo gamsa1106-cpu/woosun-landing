@@ -1,5 +1,6 @@
 import os
 import smtplib
+import threading
 from email.mime.text import MIMEText
 from flask import Flask, render_template, request, jsonify
 
@@ -22,9 +23,13 @@ def send_email(name, phone, message):
     msg['From'] = GMAIL_USER
     msg['To'] = GMAIL_USER
 
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-        server.login(GMAIL_USER, GMAIL_PASSWORD)
-        server.send_message(msg)
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(GMAIL_USER, GMAIL_PASSWORD)
+            server.send_message(msg)
+        print(f"이메일 전송 완료: {name}")
+    except Exception as e:
+        print(f"이메일 전송 실패: {e}")
 
 @app.route('/')
 def index():
@@ -37,12 +42,11 @@ def contact():
     phone = data.get('phone', '')
     message = data.get('message', '')
 
-    try:
-        send_email(name, phone, message)
-        return jsonify({'message': '문의가 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.'})
-    except Exception as e:
-        print(f"이메일 전송 실패: {e}")
-        return jsonify({'error': str(e)}), 500
+    # 이메일을 백그라운드에서 보내고 즉시 응답 반환
+    thread = threading.Thread(target=send_email, args=(name, phone, message))
+    thread.start()
+
+    return jsonify({'message': '문의가 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
